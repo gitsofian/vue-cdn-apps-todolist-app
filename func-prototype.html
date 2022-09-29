@@ -1,0 +1,100 @@
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JavaScript Prototype</title>
+</head>
+<body>
+  <h1>JavaScript Prototype</h1>
+
+  <script>
+
+    function Owner(name, age) {
+      this.name = name;
+      this.age = age;
+      this.money = 20000;
+      this.cars = []
+    }
+
+    Owner.prototype = {
+      buyCar: function(car) {
+        if (!car.forSale) {
+          return 'Das Auto wird aktuell nicht verkauft.';
+        }
+        if (this.money < car.price) {
+          const missingAmount = car.price - this.money;
+          return `Dir fehlen ${ missingAmount } € um dieses Auto zu kaufen.`;
+        }
+
+        car.stopSale();
+        this.transferMoney(car.price, car.owner);
+        car.changeOwner(this);
+        
+        return true;
+      },
+      transferMoney(amount, recipient) {
+        if (this.money >= amount) {
+          this.money -= amount;
+          recipient.money += amount;
+        } else {
+          return 'Du hast nicht genug Geld.'
+        }
+      }
+    }
+
+
+    function Car(color, doors, owner) {
+      this.color = color;
+      this.doors = doors;
+      this.owner = owner;
+      this.price = 0;
+      this.forSale = false;
+      this.owner.cars.push(this);
+    }
+
+    Car.prototype = {
+      startSale(price) {
+        if (price != undefined) {
+          this.price = price;
+        }
+        this.forSale = true;
+      },
+      stopSale() {
+        this.forSale = false;
+      },
+      changeOwner(newOwner) {
+        this.owner.cars.forEach((car, index) => {
+          // console.log('THIS', this)  // need arrow function to access this of our object, not window
+          if (car == this) {
+            this.owner.cars.splice(index, 1);
+          }
+        });
+
+        this.owner = newOwner;
+        newOwner.cars.push(this);
+      }
+    }
+
+
+    const ownerA = new Owner('Tim', 27);
+    const ownerB = new Owner('Connie', 26);
+    const ownerC = new Owner('VW');
+
+    const carA = new Car('yellow', 5, ownerC);
+    const carB = new Car('red', 5, ownerC);
+    const carC = new Car('blue', 5, ownerC);
+
+    const owners = [ ownerA, ownerB, ownerC ];
+
+
+    // carA.startSale(15000);
+    // carB.startSale(10000);
+
+    // console.log(ownerA.buyCar(carA));
+    // console.log(ownerA.buyCar(carB));
+    // console.log(ownerB.buyCar(carB));
+
+  </script>
+</body>
+</html>

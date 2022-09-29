@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="style.css" />
+    <title>To-Do-List App</title>
+  </head>
+  <body>
+    <div class="container">
+      <div id="app">
+        <h1>Willkommen!</h1>
+        <h2>To-Do-Liste App</h2>
+
+        <div>
+          <div class="header">
+            <form action="/">
+              <input
+                type="text"
+                id="aufgabe"
+                v-model="taskName"
+                placeholder="Aufgabetitel..."
+                required
+              />
+              <input
+                @click="addTask($event)"
+                class="addBtn"
+                type="text"
+                value="hinzufügen"
+              />
+            </form>
+          </div>
+
+          <div>
+            <ul id="todolist">
+              <li
+                v-for="(element, index) in elements"
+                :class="{checked: elements[index].status}"
+                @click="checkupTask($event, index)"
+              >
+                {{element.taskName}}, {{element.timeToDo}}
+                <span>
+                  <input
+                    class="close"
+                    @click.stop="removeTask($event, elements[index].index)"
+                    value="löschen"
+                    type="text"
+                  />
+                </span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+
+    <script>
+      // import VCalendar from "v-calendar";
+      const { createApp } = Vue;
+      // const { vc } = VCalendar;
+
+      createApp({
+        data() {
+          return {
+            elements: [], // list
+            count: 1, // key - schlüssel
+            taskName: null,
+            selectedDate: null,
+            status: false,
+
+            task: {
+              index: null,
+              taskName: null,
+              color: null,
+              timeToDo: null,
+              status: false,
+            },
+          };
+        },
+        methods: {
+          addTask(e) {
+            e.preventDefault();
+            console.log("addTask angerufen mit dem Wert", this.taskName);
+            if (!this.isTaskExist) {
+              const task = {
+                index: this.count,
+                taskName: this.taskName,
+                color: null,
+                timeToDo: "heute",
+                status: false,
+              };
+
+              this.elements.push(task);
+              // pointer to the next element
+              this.count++;
+              // this.clear();
+            }
+          },
+
+          removeTask(e, index) {
+            e.preventDefault();
+            listElements = document.querySelectorAll("#todolist li");
+            for (let i = 0; i < this.elements.length; i++) {
+              if (this.elements[i].index == index) {
+                this.elements.splice(i, 1);
+                this.count--;
+              }
+            }
+          },
+
+          checkupTask(e, index) {
+            e.preventDefault();
+            console.log(this);
+            if (!this.elements[index].status) {
+              this.elements[index].status = true;
+            } else {
+              this.elements[index].status = false;
+            }
+          },
+
+          printTasks() {
+            this.elements.forEach((element) => {
+              console.log(element);
+            });
+          },
+
+          clear() {
+            this.taskName = null;
+          },
+        },
+        computed: {
+          isTaskExist() {
+            for (let i = 0; i < this.elements.length; i++) {
+              if (this.elements[i].taskName == this.taskName) {
+                return true;
+              }
+            }
+            return false;
+          },
+        },
+        mounted() {
+          console.log("App mounted, loaded local data...");
+
+          const task = {
+            index: 0,
+            taskName: "Beispiel Aufgabe...Einkauf gehen!",
+            timeToDo: "Heute",
+            color: "yellow",
+            status: false,
+          };
+          this.elements.push(task);
+        },
+      }).mount("#app");
+    </script>
+  </body>
+</html>
+
